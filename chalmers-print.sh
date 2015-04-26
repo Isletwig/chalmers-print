@@ -19,13 +19,15 @@ if [[ -z "$PRINTER" ]]; then
 	read PRINTER;
 fi
 
-# looks for codenames
+# looks for nicknames
 if [[ "$PRINTER" = "torget" ]]; then
 	PRINTER="f-7207b-color1"
 elif [[ "$PRINTER" = "dd" ]]; then
 	PRINTER="ft-4011-laser3"
 elif [[ "$PRINTER" = "bulten" ]]; then
 	PRINTER="m-1117-laser2"	
+elif [[ "$PRINTER" = "fb" ]]; then
+	PRINTER="f-7105a-laser1"
 fi
 
 # promps for duplex
