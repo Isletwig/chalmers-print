@@ -13,6 +13,12 @@ PRINTER="$2"
 SIDES="y"
 COLOR="n"
 
+# checks if file is set, else prompt 
+if [[ -z "$FILENAME" ]]; then 
+	printf "Path to file: ";
+	read FILENAME;
+fi
+
 # checks if printer is set, else prompt 
 if [[ -z "$PRINTER" ]]; then 
 	printf "Skrivare: ";
