@@ -10,8 +10,9 @@
 # variables
 FILENAME="$1"
 PRINTER="$2"
+COPIES=1
 SIDES="y"
-COLOR="n"
+PAGES="y"
 
 # checks if file is set, else prompt 
 if [[ -z "$FILENAME" ]]; then 
@@ -36,8 +37,21 @@ elif [[ "$PRINTER" = "fb" ]]; then
 	PRINTER="f-7105a-laser1"
 fi
 
+# number of copies
+printf "Number of copies: "
+read COPIES
+
+# range of pages
+printf "Print all pages (y,n):"
+read PAGES
+# if not all pages, select range of pages
+if [[ "$PAGES" = "n" ]]; then
+	printf "Choose range of pages (ex: 1-2 or 1-2,5): "
+	read PAGES
+fi
+
 # promps for duplex
-printf "Dubbelsidigt? (y,n): "
+printf "Duplex? (y,n): "
 read SIDES
 if [[ "$SIDES" = "n" ]]; then
 	SIDES="one-sided"
@@ -50,4 +64,4 @@ printf "CID: "
 read CID
 
 # command for printing
-ssh $CID@remote11.chalmers.se lpr -o "sides=$SIDES" -P "$PRINTER" < "$FILENAME"	
+ssh $CID@remote11.chalmers.se lpr -#"$COPIES" -o "page-ranges=$PAGES" -o "sides=$SIDES" -P "$PRINTER" < "$FILENAME"
