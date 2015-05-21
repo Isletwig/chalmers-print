@@ -2,10 +2,14 @@
 
 #!/bin/sh
 
-# variables
+
+#.............. Variables .................
+
+# arguments
 FIRST="$1"
 SECOND="$2"
 
+# print specific
 FILENAME=""
 PRINTER=""
 COPIES=1
@@ -13,17 +17,70 @@ SIDES="y"
 PAGES="y"
 OPTIONS=""
 
-# Printer information
+# printer information
 NICKS=("torget" "dd" "fb" "bulten")
 PRINTER_NAME=("f-7207b-color1" "ft-4011-laser3" "f-7105a-laser1" "m-1117-laser2")
 PRINTER_DESCRIPTION=("Forskarhuset lvl 7, pantry" "Computer room physics (new Djungel Data)" "Physics building lvl 7 next to FB" "Study hall next to Bulten")
 
-if [[ "$FIRS"="nicklist" ]]; then
+
+#............... Startup commands ..................
+
+# Installation 
+
+# if install command is requested
+if [[ "$FIRST" = "install" ]]; then
+	
+	# the name of this script
+	me="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
+	# create name of installation directory
+	directory="/Applications/Chprint"
+	# name of alias
+	alias_name="chprint"
+
+	# find profile file
+	if [[ ! -s "$HOME/.bash_profile" && -s "$HOME/.profile" ]] ; then
+  		profile_file="$HOME/.profile"
+	else
+  		profile_file="$HOME/.bash_profile"
+	fi
+
+	# create installation directory
+	mkdir -p "$directory"
+
+	# move script file to installation directory
+	cp ./$me "$directory/$me"
+
+	# check if alias exist
+	if grep -q 'chprinttest' "${profile_file}" ; then
+
+		# Remove old alias
+		sed -i '' '/chprinttest/d' $profile_file
+	fi
+
+	# add new alias
+	echo "alias $alias_name='$directory/$me'" >> $profile_file
+
+	# delete old file if it exist
+	rm -f $HOME/chalmers-print.sh
+
+	# terminate script
+	exit 0
+fi
+
+# Printlist command
+
+# if prinlist command is requested
+if [[ "$FIRST" = "nicklist" ]]; then
 	for index in ${!NICKS[*]}; do
 		printf "%s\t %s\t %s\n" ${NICKS[$index]} ${PRINTER_NAME[$index]} "${PRINTER_DESCRIPTION[$index]}"
 	done
+
+	# terminate script
 	exit 0
 fi
+
+
+#................. Collect print information .....................
 
 # checks if file is set, else prompt 
 if [[ -z "$FIRST" ]]; then 
@@ -66,6 +123,9 @@ else
 fi
 OPTIONS="$OPTIONS -o sides=$SIDES"
 
+
+#................. Printer specific options ..................
+
 # looks for nicknames and askes for printer specific options
 if [ "$PRINTER" = "torget" ] || [ "$PRINTER" = "f-7207b-color1" ]; then
 	PRINTER="f-7207b-color1"
@@ -97,9 +157,14 @@ elif [[ "$PRINTER" = "fb" ]]; then
 	PRINTER="f-7105a-laser1"
 fi
 
+
+#..................... Login ....................
 # promps for username
 printf "CID: "
 read CID
+
+
+#.................... Printing ..................
 
 # command for printing
 ssh $CID@remote11.chalmers.se lpr "$OPTIONS" -P "$PRINTER" < "$FILENAME"
