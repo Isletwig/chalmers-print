@@ -1,30 +1,44 @@
 # Script for printing from your own machine using the remote computer
 
-# TODO: more options for example grayscale/color jobs. 
-# It's tricky because each printer has different commands
-
-# TODO: more printers with nicknames for easier use
-
 #!/bin/sh
 
 # variables
-FILENAME="$1"
-PRINTER="$2"
+FIRST="$1"
+SECOND="$2"
+
+FILENAME=""
+PRINTER=""
 COPIES=1
 SIDES="y"
 PAGES="y"
 OPTIONS=""
 
+# Printer information
+NICKS=("torget" "dd" "fb" "bulten")
+PRINTER_NAME=("f-7207b-color1" "ft-4011-laser3" "f-7105a-laser1" "m-1117-laser2")
+PRINTER_DESCRIPTION=("Forskarhuset lvl 7, pantry" "Computer room physics (new Djungel Data)" "Physics building lvl 7 next to FB" "Study hall next to Bulten")
+
+if [[ "$FIRS"="nicklist" ]]; then
+	for index in ${!NICKS[*]}; do
+		printf "%s\t %s\t %s\n" ${NICKS[$index]} ${PRINTER_NAME[$index]} "${PRINTER_DESCRIPTION[$index]}"
+	done
+	exit 0
+fi
+
 # checks if file is set, else prompt 
-if [[ -z "$FILENAME" ]]; then 
+if [[ -z "$FIRST" ]]; then 
 	printf "Path to file: ";
 	read FILENAME;
+else
+	FILENAME="$FIRST"
 fi
 
 # checks if printer is set, else prompt 
-if [[ -z "$PRINTER" ]]; then 
+if [[ -z "$SECOND" ]]; then 
 	printf "Skrivare: ";
 	read PRINTER;
+else
+	PRINTER="$SECOND"
 fi
 
 # number of copies
