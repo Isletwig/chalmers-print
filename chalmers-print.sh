@@ -3,7 +3,10 @@
 #!/bin/sh
 
 
-#.............. Variables .................
+#............... Variables .....................
+
+# script intformation
+VERSION="v1.0"
 
 # arguments
 FIRST="$1"
@@ -22,6 +25,8 @@ NICKS=("torget" "dd" "fb" "bulten")
 PRINTER_NAME=("f-7207b-color1" "ft-4011-laser3" "f-7105a-laser1" "m-1117-laser2")
 PRINTER_DESCRIPTION=("Forskarhuset lvl 7, pantry" "Computer room physics (new Djungel Data)" "Physics building lvl 7 next to FB" "Study hall next to Bulten")
 
+# makes all string comparisons non case sensitive
+shopt -s nocasematch
 
 #............... Startup commands ..................
 
@@ -46,17 +51,14 @@ if [[ "$FIRST" = "install" ]]; then
 
 	# create installation directory
 	mkdir -p "$directory"
-
 	# move script file to installation directory
 	cp ./$me "$directory/$me"
 
 	# check if alias exist
 	if grep -q 'chprinttest' "${profile_file}" ; then
-
 		# Remove old alias
 		sed -i '' '/chprinttest/d' $profile_file
 	fi
-
 	# add new alias
 	echo "alias $alias_name='$directory/$me'" >> $profile_file
 
@@ -79,6 +81,12 @@ if [[ "$FIRST" = "nicklist" ]]; then
 	exit 0
 fi
 
+
+#................. Welcome screen ......................
+
+printf "%s\n" "" ""
+printf "%s\t%s\n" "" "Welcome to Chalmers Print!"
+printf "%s\t%s\t%s\n%s\n" "" "" "$VERSION" ""
 
 #................. Collect print information .....................
 
