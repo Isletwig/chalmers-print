@@ -62,16 +62,14 @@ if [[ "$FIRST" = "install" ]]; then
 	cp ./$me "$directory/$me"
 
 	# check if alias exist
-	# TODO: doesent seem to work, fix this
-	if grep -q '$alias_name' "${profile_file}" ; then
+	if grep -q $alias_name "$profile_file" ; then
 		# Remove old alias
-		sed -i '' '/$alias_name/d' $profile_file
-		echo "hittat"
+		sed -i '' "/$alias_name/d" "$profile_file"
 	fi
 	# add new alias
 	echo "alias $alias_name='$directory/$me'" >> $profile_file
 
-	# delete old file if it exist
+	# delete old file in homefolder if it exist
 	rm -f $HOME/chalmers-print.sh
 
 	# end message
