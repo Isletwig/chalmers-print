@@ -77,19 +77,42 @@ if [[ "$FIRST" = "update" ]]; then
 
 	# finds the url to the latest realease
 	latets_url=$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/Isletwig/chalmers-print/releases/latest)
-	# extract the version number from the url
-	latest_version="${latets_url//[!0-9]/}"
+	# locate the versionnumber
+	# TODO create a more stable extraction that are independent of lenght
+	latest_version="${latets_url: -4}"
+	# makes the version number only digits
+	latest_version_number="${latest_version//[!0-9]/}"
 	# cleans the version string to a number
-	current_version="${VERSION//[!0-9]/}"
+	current_version_number="${VERSION//[!0-9]/}"
 
-	# if the latets version is installed
-	if [[ "$latest_version" -gt "$current_version" ]]; then
+	# check if the system needs to update
+	if [[ "$latest_version_number" -gt "$current_version_number" ]]; then
 		# askes if the user would like to install the latest realease
 		printf "%s\n" "There is a newer realease ready for download." "Do you like to automatically update? (y,n): "
 		read update_answer
+
+		if [[ "$update_answer" = "y" ]]; then
+			# create temporary directory
+			mkdir -p tmp_directory
+			# move to the new directory
+			cd tmp_directory
+
+			# download the latest version from Github
+			curl -LO https://github.com/Isletwig/chalmers-print/archive/$latest_version.zip
+			# unzip the download
+			unzip $latest_version.zip
+			# move into program directory
+			cd chalmers-print-${latest_version:1:3}
+			# run the script with install command
+			./chalmers-print.sh install
+			# remove the temporary directory
+			cd ..
+			cd ..
+			rm -r tmp_directory
+		fi
 	else
 		# no need for updating
-		printf "%s\n" "You are currently running ($VERSION) which is the latest version."
+		printf "%s\n" "You are currently running $VERSION which is the latest version."
 	fi
 
 	# terminate script
