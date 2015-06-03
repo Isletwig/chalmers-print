@@ -28,6 +28,13 @@ PRINTER_DESCRIPTION=("Forskarhuset lvl 7, pantry" "Computer room physics (new Dj
 # makes all string comparisons non case sensitive
 shopt -s nocasematch
 
+#................. Welcome screen ......................
+
+printf "%s\n" "" ""
+printf "%s\t%s\t%s\t%s\n" "" "" "" "Chalmers Print"
+printf "%s\t%s\t%s\t%s\n%s\n" "" "" "" "     $VERSION" ""
+
+
 #............... Startup commands ..................
 
 # Installation 
@@ -55,15 +62,20 @@ if [[ "$FIRST" = "install" ]]; then
 	cp ./$me "$directory/$me"
 
 	# check if alias exist
-	if grep -q 'chprinttest' "${profile_file}" ; then
+	# TODO: doesent seem to work, fix this
+	if grep -q '$alias_name' "${profile_file}" ; then
 		# Remove old alias
-		sed -i '' '/chprinttest/d' $profile_file
+		sed -i '' '/$alias_name/d' $profile_file
+		echo "hittat"
 	fi
 	# add new alias
 	echo "alias $alias_name='$directory/$me'" >> $profile_file
 
 	# delete old file if it exist
 	rm -f $HOME/chalmers-print.sh
+
+	# end message
+	printf "%s\n" "Installation is finished. Please restart your terminal before using." ""
 
 	# terminate script
 	exit 0
@@ -97,8 +109,13 @@ if [[ "$FIRST" = "update" ]]; then
 			# move to the new directory
 			cd tmp_directory
 
+			# information about download
+			printf "%s\n" "" "Downloading..." ""
 			# download the latest version from Github
 			curl -LO https://github.com/Isletwig/chalmers-print/archive/$latest_version.zip
+			
+			# information about unzipping
+			printf "%s\n" "" "Unzipping..." ""
 			# unzip the download
 			unzip $latest_version.zip
 			# move into program directory
@@ -112,7 +129,7 @@ if [[ "$FIRST" = "update" ]]; then
 		fi
 	else
 		# no need for updating
-		printf "%s\n" "You are currently running $VERSION which is the latest version."
+		printf "%s\n" "You are currently running $VERSION which is the latest version." ""
 	fi
 
 	# terminate script
@@ -123,26 +140,27 @@ fi
 
 # if prinlist command is requested
 if [[ "$FIRST" = "nicklist" ]]; then
+	#informative title
+	printf "%s\n" "The following nicknames exist in this version:" ""
+
 	for index in ${!NICKS[*]}; do
 		printf "%s\t %s\t %s\n" ${NICKS[$index]} ${PRINTER_NAME[$index]} "${PRINTER_DESCRIPTION[$index]}"
 	done
+
+	# adds extra enpty line for easy reading
+	printf "%s\n" ""
 
 	# terminate script
 	exit 0
 fi
 
-
-#................. Welcome screen ......................
-
-printf "%s\n" "" "" "" ""
-printf "%s\t%s\t%s\t%s\n" "" "" "" "Welcome to Chalmers Print!"
-printf "%s\t%s\t%s\t%s\t%s\n%s\n" "" "" "" "" "$VERSION" ""
-
 #................. Collect print information .....................
+
+printf "%s\n" "Please answer the following questions about your print job:" ""
 
 # checks if file is set, else prompt 
 if [[ -z "$FIRST" ]]; then 
-	printf "Path to file: ";
+	printf "%s\n" "Path to file: ";
 	read FILENAME;
 else
 	FILENAME="$FIRST"
@@ -150,29 +168,29 @@ fi
 
 # checks if printer is set, else prompt 
 if [[ -z "$SECOND" ]]; then 
-	printf "Skrivare: ";
+	printf "%s\n" "Skrivare: ";
 	read PRINTER;
 else
 	PRINTER="$SECOND"
 fi
 
 # number of copies
-printf "Number of copies: "
+printf "%s\n" "Number of copies: "
 read COPIES
 OPTIONS="-#$COPIES"
 
 # range of pages
-printf "Print all pages (y,n):"
+printf "%s\n" "Print all pages (y,n):"
 read PAGES
 # if not all pages, select range of pages
 if [[ "$PAGES" = "n" ]]; then
-	printf "Choose range of pages (ex: 1-2 or 1-2,5): "
+	printf "%s\n" "Choose range of pages (ex: 1-2 or 1-2,5): "
 	read PAGES
 	OPTIONS="$OPTIONS -o page-ranges=$PAGES"
 fi
 
 # promps for duplex
-printf "Duplex? (y,n): "
+printf "%s\n" "Duplex? (y,n): "
 read SIDES
 if [[ "$SIDES" = "n" ]]; then
 	SIDES="one-sided"
@@ -188,7 +206,7 @@ OPTIONS="$OPTIONS -o sides=$SIDES"
 if [ "$PRINTER" = "torget" ] || [ "$PRINTER" = "f-7207b-color1" ]; then
 	PRINTER="f-7207b-color1"
 	
-	printf "Color? (y,n): "
+	printf "%s\n" "Color? (y,n): "
 	read COLOR
 
 	if [[ "$COLOR" = "n" ]]; then
@@ -198,7 +216,7 @@ if [ "$PRINTER" = "torget" ] || [ "$PRINTER" = "f-7207b-color1" ]; then
 	fi
 	OPTIONS="$OPTIONS -o ColorModel=$COLOR"
 
-	printf "Stapled? (y,n): "
+	printf "%s\n" "Stapled? (y,n): "
 	read STAPLES
 
 	# staples put on up to the left
@@ -218,7 +236,7 @@ fi
 
 #..................... Login ....................
 # promps for username
-printf "CID: "
+printf "%s\n" "CID: "
 read CID
 
 
@@ -226,3 +244,6 @@ read CID
 
 # command for printing
 ssh $CID@remote11.chalmers.se lpr "$OPTIONS" -P "$PRINTER" < "$FILENAME"
+
+# end message
+printf "%s\n" "Done!"
