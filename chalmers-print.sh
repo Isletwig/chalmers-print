@@ -6,7 +6,7 @@
 #............... Variables .....................
 
 # script intformation
-VERSION="v1.0"
+VERSION="v0.0"
 
 # arguments
 FIRST="$1"
@@ -35,13 +35,10 @@ printf "%s\t%s\t%s\t%s\n" "" "" "" "Chalmers Print"
 printf "%s\t%s\t%s\t%s\n%s\n" "" "" "" "     $VERSION" ""
 
 
-#............... Startup commands ..................
+#................. Functions ...........................
 
-# Installation 
-
-# if install command is requested
-if [[ "$FIRST" = "install" ]]; then
-	
+# installation function
+function install {
 	# the name of this script
 	me="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
 	# create name of installation directory
@@ -77,14 +74,11 @@ if [[ "$FIRST" = "install" ]]; then
 
 	# terminate script
 	exit 0
-fi
+}
 
-# Update
-
-# checks for updates and automatically download the latest version
-if [[ "$FIRST" = "update" ]]; then
-	update_answer="n"
-
+# update up_to_date variable
+up_to_date="y"
+function check_for_updates {
 	# finds the url to the latest realease
 	latets_url=$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/Isletwig/chalmers-print/releases/latest)
 	# locate the versionnumber
@@ -97,6 +91,35 @@ if [[ "$FIRST" = "update" ]]; then
 
 	# check if the system needs to update
 	if [[ "$latest_version_number" -gt "$current_version_number" ]]; then
+		up_to_date="n"
+	fi
+}
+
+# warn the user is the current version is old
+function old_realease_warning {
+	check_for_updates
+	if [[ "$up_to_date" = "n" ]]; then
+		printf "%s\n" "There is a newer realease of Chalmers Print ($latest_version) ready for download. Please consider updating with update command or manually download from Github." ""
+	fi
+}
+
+
+#............... Startup commands ..................
+
+# if install command is requested
+if [[ "$FIRST" = "install" ]]; then
+	install
+fi
+
+# if update command is requested
+if [[ "$FIRST" = "update" ]]; then
+	update_answer="n"
+
+	# update the up_to_date variable
+	check_for_updates
+
+	# check if the system needs to update
+	if [[ "$up_to_date" = "n" ]]; then
 		# askes if the user would like to install the latest realease
 		printf "%s\n" "There is a newer realease ready for download." "Do you like to automatically update? (y,n): "
 		read update_answer
@@ -121,8 +144,7 @@ if [[ "$FIRST" = "update" ]]; then
 			# run the script with install command
 			./chalmers-print.sh install
 			# remove the temporary directory
-			cd ..
-			cd ..
+			cd ../..
 			rm -r tmp_directory
 		fi
 	else
@@ -133,8 +155,6 @@ if [[ "$FIRST" = "update" ]]; then
 	# terminate script
 	exit 0
 fi
-
-# Printlist command
 
 # if prinlist command is requested
 if [[ "$FIRST" = "nicklist" ]]; then
@@ -147,6 +167,9 @@ if [[ "$FIRST" = "nicklist" ]]; then
 
 	# adds extra enpty line for easy reading
 	printf "%s\n" ""
+
+	# warn the user for old version
+	old_realease_warning
 
 	# terminate script
 	exit 0
@@ -244,4 +267,9 @@ read CID
 ssh $CID@remote11.chalmers.se lpr "$OPTIONS" -P "$PRINTER" < "$FILENAME"
 
 # end message
-printf "%s\n" "Done!"
+printf "%s\n" "Done!" ""
+
+# warn the iser if the system is old
+old_realease_warning
+
+
