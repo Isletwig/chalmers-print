@@ -69,6 +69,33 @@ if [[ "$FIRST" = "install" ]]; then
 	exit 0
 fi
 
+# Update
+
+# checks for updates and automatically download the latest version
+if [[ "$FIRST" = "update" ]]; then
+	update_answer="n"
+
+	# finds the url to the latest realease
+	latets_url=$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/Isletwig/chalmers-print/releases/latest)
+	# extract the version number from the url
+	latest_version="${latets_url//[!0-9]/}"
+	# cleans the version string to a number
+	current_version="${VERSION//[!0-9]/}"
+
+	# if the latets version is installed
+	if [[ "$latest_version" -gt "$current_version" ]]; then
+		# askes if the user would like to install the latest realease
+		printf "%s\n" "There is a newer realease ready for download." "Do you like to automatically update? (y,n): "
+		read update_answer
+	else
+		# no need for updating
+		printf "%s\n" "You are currently running ($VERSION) which is the latest version."
+	fi
+
+	# terminate script
+	exit 0
+fi
+
 # Printlist command
 
 # if prinlist command is requested
@@ -84,9 +111,9 @@ fi
 
 #................. Welcome screen ......................
 
-printf "%s\n" "" ""
-printf "%s\t%s\n" "" "Welcome to Chalmers Print!"
-printf "%s\t%s\t%s\n%s\n" "" "" "$VERSION" ""
+printf "%s\n" "" "" "" ""
+printf "%s\t%s\t%s\t%s\n" "" "" "" "Welcome to Chalmers Print!"
+printf "%s\t%s\t%s\t%s\t%s\n%s\n" "" "" "" "" "$VERSION" ""
 
 #................. Collect print information .....................
 
