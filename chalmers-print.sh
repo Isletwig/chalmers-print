@@ -1,4 +1,4 @@
-# Script for printing from your own machine using the remote computer
+# Script for printing from your own machine on Chalmers printers using the remote computer
 
 #!/bin/sh
 
@@ -6,7 +6,7 @@
 #............... Variables .....................
 
 # script intformation
-VERSION="v0.0"
+VERSION="v1.1"
 
 # arguments
 FIRST="$1"
@@ -156,7 +156,19 @@ if [[ "$FIRST" = "update" ]]; then
 	exit 0
 fi
 
-# if prinlist command is requested
+# if printlist command is requested
+if [[ "$FIRST" = "printlist" ]]; then
+	# direct to site with printerlist
+	printf "%s\n" "A complete list of printers can be found here: " "" "http://print.chalmers.se/public/showprinters.cgi" "" "Note that not all of these have full customisation yet." ""
+
+	# warn the user for old version
+	old_realease_warning
+
+	# terminate script
+	exit 0
+fi
+
+# if nicklist command is requested
 if [[ "$FIRST" = "nicklist" ]]; then
 	#informative title
 	printf "%s\n" "The following nicknames exist in this version:" ""
