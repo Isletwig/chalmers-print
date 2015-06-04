@@ -80,7 +80,7 @@ function install {
 up_to_date="y"
 function check_for_updates {
 	# finds the url to the latest realease
-	latets_url=$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/Isletwig/chalmers-print/releases/latest)
+	latets_url=$(curl -Ls -I -o /dev/null -w %{url_effective} https://github.com/Isletwig/chalmers-print/releases/latest)
 	# locate the versionnumber
 	# TODO create a more stable extraction that are independent of lenght
 	latest_version="${latets_url: -4}"
